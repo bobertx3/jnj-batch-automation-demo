@@ -9,13 +9,19 @@ It supports:
 
 ## Architecture
 
-![Solution Architecture](./solution_arch.png)
+![Solution Architecture](./images/solution_arch.png)
 
 High-level deployment model shown in the diagram:
 
 - One Databricks App hosts both the React frontend and FastAPI backend.
 - The backend reads Lakebase native credentials (`PGUSER` / `PGPASSWORD`) from a Databricks Secret Scope.
 - Lakebase Autoscaling (Postgres) is the primary transactional backend for batch disposition workflows.
+
+## App Screenshots
+
+![JNJ Batch Automation App - Screen 1](./images/jnj_batch_auto_app_1.png)
+![JNJ Batch Automation App - Screen 2](./images/jnj_batch_auto_app_2.png)
+![JNJ Batch Automation App - Screen 3](./images/jnj_batch_auto_app_3.png)
 
 ## Solution Overview
 
