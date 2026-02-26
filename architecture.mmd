@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph title[" "]
+        direction TB
+        T["JNJ Batch Automation - Databricks App + Lakebase"]
+    end
+
+    subgraph client["Client"]
+        Browser["User Browser\n(React frontend)"]
+    end
+
+    subgraph databricks["Databricks Platform"]
+        subgraph app_runtime["App Runtime"]
+            FastAPI["FastAPI Backend\n(uvicorn app:app)"]
+        end
+
+        subgraph config["Configuration"]
+            Bundle["databricks.yml\n(Asset Bundle)"]
+            SecretScope["Secret Scope\njnj-batch-release-secrets\nPGUSER · PGPASSWORD"]
+        end
+    end
+
+    subgraph data["Data Layer"]
+        Lakebase["Lakebase Postgres\nbatch_release_db"]
+    end
+
+    subgraph local_dev["Optional Local Dev"]
+        Env[".env\nPGHOST · PGPORT · PGDATABASE\nPGUSER · PGPASSWORD"]
+    end
+
+    subgraph db_setup["db_setup Scripts"]
+        Seed["seed_db.py"]
+        CreateRole["create_native_app_role.py"]
+        VerifyRole["verify_native_role.py"]
+        CreateSecrets["create_app_secrets.sh"]
+        DeployNative["deploy_with_native_password.sh"]
+    end
+
+    Browser -->|"API calls"| FastAPI
+    FastAPI -->|"SQL read/write"| Lakebase
+    SecretScope -->|"env vars"| FastAPI
+    Bundle -->|"inject env/resources"| FastAPI
+    Env -.->|"local run"| FastAPI
+    db_setup -->|"setup DB"| Lakebase
+    db_setup -->|"create secrets"| SecretScope
+    db_setup -->|"deploy"| Bundle
