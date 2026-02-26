@@ -1,0 +1,23 @@
+command:
+  - "python"
+  - "-m"
+  - "uvicorn"
+  - "app:app"
+  - "--host"
+  - "0.0.0.0"
+  - "--port"
+  - "8000"
+
+env:
+  - name: PGHOST
+    value: ep-wandering-scene-d2440hao.database.us-east-1.cloud.databricks.com
+  - name: PGPORT
+    value: "5432"
+  - name: PGDATABASE
+    value: batch_release_db
+  - name: PGUSER
+    valueFrom: lakebase-native-user
+  - name: PGPASSWORD
+    valueFrom: lakebase-native-password
+  - name: PG_ENDPOINT
+    value: projects/batch-release/branches/production/endpoints/primary

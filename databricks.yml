@@ -1,0 +1,65 @@
+bundle:
+  name: jnj-batch-automation-demo
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://fevm-stable-classic-zso77x-bx3.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/jnj-batch-automation-demo
+
+variables:
+  pg_host:
+    description: "Lakebase Autoscaling endpoint host"
+    default: ep-wandering-scene-d2440hao.database.us-east-1.cloud.databricks.com
+  pg_endpoint:
+    description: "Lakebase endpoint resource path for credential generation"
+    default: projects/batch-release/branches/production/endpoints/primary
+  app_secret_scope:
+    description: "Databricks secret scope for app DB credentials"
+    default: jnj-batch-release-secrets
+
+resources:
+  apps:
+    jnj-batch-release:
+      name: jnj-batch-release
+      description: "Stelara Batch Release Dashboard - Veeva-style QA batch disposition review"
+      source_code_path: .
+      resources:
+        - name: lakebase-native-user
+          secret:
+            scope: ${var.app_secret_scope}
+            key: PGUSER
+            permission: READ
+        - name: lakebase-native-password
+          secret:
+            scope: ${var.app_secret_scope}
+            key: PGPASSWORD
+            permission: READ
+      config:
+        command:
+          - python
+          - -m
+          - uvicorn
+          - "app:app"
+          - "--host"
+          - "0.0.0.0"
+          - "--port"
+          - "8000"
+        env:
+          - name: PGHOST
+            value: ${var.pg_host}
+          - name: PGPORT
+            value: "5432"
+          - name: PGDATABASE
+            value: batch_release_db
+          - name: PGUSER
+            value_from: lakebase-native-user
+          - name: PGPASSWORD
+            value_from: lakebase-native-password
+          - name: PG_ENDPOINT
+            value: ${var.pg_endpoint}
+      permissions:
+        - level: CAN_USE
+          user_name: robert.leach@databricks.com
